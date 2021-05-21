@@ -17,6 +17,7 @@ ori_path = "..\\FOF_FG_CTA"
 # 目标目录：FOF_FG_trade_min
 aim_path = "..\\FOF_FG_trade_min"
 
+
 # 根据wind中的商品期货的命名规则，利用wsi函数获取某合约历史交易数据
 # 先从FOF_FG_CTA获取所有合约
 # 返回数据格式为WindPy.w.WindData，{.ErrorCode,.Codes,.Fields,.Times,.Data}
@@ -31,7 +32,8 @@ def getData(Wind_code):
     endTime = "2021-05-20 00:00:00";
     options = ""
     
-    w_wsi_data = w.wsi(Wind_code, fields, beginTime, endTime, options)
+    w_wsi_data = w.wsi(Wind_code, fields, beginTime, endTime, options);
+    
     
     if w_wsi_data.ErrorCode != 0:
         print("error! ErrorCode is %s" %w_wsi_data.ErrorCode)
@@ -40,10 +42,10 @@ def getData(Wind_code):
 
 
 # 保存w.wset()获取的数据
-def saveData(Wind_data, Wind_code, com_path):
+def saveData(Wind_data, save_path):
     if Wind_data.ErrorCode == 0:
         df = pd.DataFrame(Wind_data.Data, index = Wind_data.Fields)
-        df.to_json(force_ascii = False, path_or_buf = com_path + '\\' + '%s.json' %Wind_code)
+        df.to_json(force_ascii = False, path_or_buf = save_path)
     
     return
 
@@ -61,7 +63,7 @@ def runFunc():
        commodityPath = ori_path + '\\' + comJsonIndex;
        
        if os.path.getsize(commodityPath) == 0:
-           exit();
+           continue;
        
        with open(commodityPath,'r') as load_f:
            load_dict = json.load(load_f);
@@ -76,8 +78,22 @@ def runFunc():
        for conDictIndex in load_dict:
            conWindCode = load_dict[conDictIndex]['wind_code'];
            
+           # conWindCode，为某合约的wind代码；savePath，为合约交易数据存为json的相对路径；如存在对应路径的文件则跳过；
+           savePath = comAimPath + '\\' + '%s.json' %conWindCode
+           
+           if os.path.exists(savePath) == True:
+               print('the trade_min_data %s is already gotten' %conWindCode)
+               continue;
+           
            conTraMinData = getData(conWindCode);
-           saveData(conTraMinData, conWindCode, comAimPath);
+           # print(conTraMinData.ErrorCode)
+           saveData(conTraMinData, savePath);
+           
+           # 超量判断跳出
+           if conTraMinData.ErrorCode == -40522017:
+           
+               print('w_wsi function is limited. ErrorCode is -40522017.');
+               return;
            
     w.stop();
 
