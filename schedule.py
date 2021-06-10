@@ -5,14 +5,17 @@ import FG_trade_min
 import threading
 import time
 
-# 参数, inc, 为每次间隔的秒数
+# 参数. inc. 为每次间隔的秒数
 # 调用或者说循环的函数为
 def fun_timer(inc):
     print('try to link Wind, after 6hours try again')
     global timer
     
     timer = threading.Timer(inc, fun_timer, (inc,))
+    
+    # 核心调用并触发定时任务的函数
     FG_trade_min.runFunc()
+    
     timer.start()
     
 # .5秒后开始触发,# 每隔1秒

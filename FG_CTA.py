@@ -75,10 +75,7 @@ def saveData(Wind_data, Wind_code):
     return
 
 
-
-
-if __name__ == '__main__':
-    
+def runFunc():
     w.start()
     
     # 文件目录确认
@@ -90,4 +87,15 @@ if __name__ == '__main__':
         sec_data = getData(CTA_code)
         saveData(sec_data, CTA_code)
 
+        # 超量判断跳出
+        if sec_data.ErrorCode == -40522017:
+            print('w_wset function is limited. ErrorCode is -40522017.');
+            
+            return;
+
     w.stop()
+
+
+
+if __name__ == '__main__':
+    runFunc();
