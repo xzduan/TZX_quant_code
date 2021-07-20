@@ -28,7 +28,8 @@ def getCom():
 def getData(Wind_code):
 
     # 注册仓单、结算价、交易品种
-    fields = "st_stock,settle,sccode";
+    fields = "open,low,high,close,settle";
+    # fields = "open,low,high,close,settle,st_stock"; 从查询结果来看st_stock不是单一合约的注册仓单，是品种所有合约的，导致历史数据大量冗余
     beginTime = "2015-01-01 00:00:00";
     endTime = "2021-05-20 00:00:00";
     options = "Days=Alldays";
@@ -46,7 +47,12 @@ def getData(Wind_code):
 def saveData(Wind_data, save_path):
     if Wind_data.ErrorCode == 0:
         df = pd.DataFrame(Wind_data.Data, index = Wind_data.Fields)
-        df.to_json(force_ascii = False, path_or_buf = save_path)
+        
+        # 将时间Times并入Data中
+        tempList = [Wind_data.Times]
+        df2 =df.append(tempList).rename(index={0:'Times'})
+        
+        df2.to_json(force_ascii = False, path_or_buf = save_path)
     
     return
 

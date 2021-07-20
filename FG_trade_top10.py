@@ -64,6 +64,9 @@ def runFunc(selType, orderBy, aimType):
     
     w.start();
     
+    if os.path.exists(aim_path) == False:
+        os.mkdir(aim_path);
+    
     aim_path_son = aim_path + '\\' + aimType;
     
     if os.path.exists(aim_path_son) == False:
